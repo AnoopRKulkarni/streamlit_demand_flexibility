@@ -5,3 +5,4 @@ streamlit
 extra-streamlit-components
 openpyxl
 plotly
+pulp
