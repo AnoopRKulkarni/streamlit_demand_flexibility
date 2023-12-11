@@ -40,33 +40,33 @@ def app(site):
    # Read end use assumption of all consumer types
    st.header("Consumer stratification")
 
-   base_base = {}
-   base_base['residential'] = pd.read_excel(INPUT_PATH + 'residential_asp.xlsx').iloc[:,:]
-   base_base['hospital'] = pd.read_excel(INPUT_PATH + 'hospital_asp.xlsx').iloc[:,:]
-   base_base['hotel'] = pd.read_excel(INPUT_PATH + 'hotel_asp.xlsx').iloc[:,:]
-   base_base['mall'] = pd.read_excel(INPUT_PATH + 'mall_asp.xlsx').iloc[:,:]
-   base_base['office'] = pd.read_excel(INPUT_PATH + 'office_asp.xlsx').iloc[:,:]
-   base_base['IT'] = pd.read_excel(INPUT_PATH + 'IT_asp.xlsx').iloc[:,:]
-   base_base['coldstorage'] = pd.read_excel(INPUT_PATH + 'cold_asp.xlsx').iloc[:,:]
-   base_base['pww'] = pd.read_excel(INPUT_PATH + 'pww_asp.xlsx').iloc[:,:]
+   base = {}
+   base['residential'] = pd.read_excel(INPUT_PATH + 'residential_base.xlsx').iloc[:,:]
+   base['hospital'] = pd.read_excel(INPUT_PATH + 'hospital_base.xlsx').iloc[:,:]
+   base['hotel'] = pd.read_excel(INPUT_PATH + 'hotel_base.xlsx').iloc[:,:]
+   base['mall'] = pd.read_excel(INPUT_PATH + 'mall_base.xlsx').iloc[:,:]
+   base['office'] = pd.read_excel(INPUT_PATH + 'office_base.xlsx').iloc[:,:]
+   base['IT'] = pd.read_excel(INPUT_PATH + 'IT_base.xlsx').iloc[:,:]
+   base['coldstorage'] = pd.read_excel(INPUT_PATH + 'cold_base.xlsx').iloc[:,:]
+   base['pww'] = pd.read_excel(INPUT_PATH + 'pww_base.xlsx').iloc[:,:]
    
-   pu_load_res=base_base['residential']['Total load'].max()
-   pu_load_hospital=base_base['hospital']['Total load'].max()
-   pu_load_hotel=base_base['hotel']['Total load'].max()
-   pu_load_mall=base_base['mall']['Total load'].max()
-   pu_load_office=base_base['office']['Total load'].max()
-   pu_load_IT=base_base['IT']['Total load'].max()
-   pu_load_coldstorage=base_base['coldstorage']['Total load'].max()
-   pu_load_pww=base_base['pww']['Total load'].max()
+   pu_load_res=base['residential']['Total load'].max()
+   pu_load_hospital=base['hospital']['Total load'].max()
+   pu_load_hotel=base['hotel']['Total load'].max()
+   pu_load_mall=base['mall']['Total load'].max()
+   pu_load_office=base['office']['Total load'].max()
+   pu_load_IT=base['IT']['Total load'].max()
+   pu_load_coldstorage=base['coldstorage']['Total load'].max()
+   pu_load_pww=base['pww']['Total load'].max()
     
-   rsd = st.slider('Peak load residential consumer (MW): ', 5000, 10000, 5600)
-   hsp = st.slider('Peak load hospital consumer (MW): ', 5000, 10000, 5600)
-   ht = st.slider('Peak load hotel consumer (MW): ', 5000,10000,7700)
-   mll = st.slider('Peak load mall consumer (MW): ', 1000, 5000, 2000) 
-   off = st.slider('Peak load office consumer (MW): ', 1000, 5000, 2500)
-   ito = st.slider('Peak load IT office consumer (MW): ', 1000, 5000, 2600)
-   cso = st.slider('Peak load cold storage consumer (MW): ', 1000, 5000, 1000)
-   pwwo = st.slider('Peak load pww consumer (MW): ', 2000, 5000, 2600)
+   rsd = st.slider('Peak load residential consumer (MW): ', 5000, 10000, 5400, step=50)
+   hsp = st.slider('Peak load hospital consumer (MW): ', 5000, 10000, 5600, step=50)
+   ht = st.slider('Peak load hotel consumer (MW): ', 5000,10000,7700, step=50)
+   mll = st.slider('Peak load mall consumer (MW): ', 1000, 5000, 2000, step=50) 
+   off = st.slider('Peak load office consumer (MW): ', 1000, 5000, 2400, step=50)
+   ito = st.slider('Peak load IT office consumer (MW): ', 1000, 5000, 2300, step=50)
+   cso = st.slider('Peak load cold storage consumer (MW): ', 500, 5000, 1050, step=50)
+   pwwo = st.slider('Peak load pww consumer (MW): ', 2000, 5000, 2600, step=50)
    
    # Total number of consumers part of the feeder/ utility
    num_consumers = pd.DataFrame([{'residential': rsd*1000/pu_load_res, 
@@ -220,7 +220,7 @@ def app(site):
    base_loads_solar = {}
 
    for segment in customer_segments: 
-       base_loads[segment] = base_base[segment]['Total load'].copy()
+       base_loads[segment] = base[segment]['Total load'].copy()
        base_solar[segment] = solar_capacity[segment].values[0]*solarperkw.iloc[:,1]
        base_loads_solar[segment] = base_loads[segment].subtract(base_solar[segment], axis=0)
 
@@ -475,7 +475,7 @@ def app(site):
        c = pd.DataFrame()
    
        for s in customer_segments:   
-           base_assumptions = base_base[s]
+           base_assumptions = base[s]
            tarrif= pricing_signal[seg_tariff[s]]
            #print(tarrif, base_assumptions)
            optimal_load=optimal_load_curve1(tarrif,base_assumptions)
@@ -569,9 +569,10 @@ def app(site):
        prev_gen_cost = curr_slot_pu
        prev_gen_cost1  = curr_gen_cost
 
-   nn=n
+   nn = n
+   st.write ("The algorithm converged in ", nn, "iterations!")
 
-   st.header("Iterative analysis")
+   st.header("Visualization")
    n = st.slider("Iteration:", 0, nn, 0)
 
    def update_plot(n):
@@ -632,7 +633,6 @@ def app(site):
 
    consumer_list = ['pww','coldstorage','IT','office','mall','hotel','hospital','residential']
  
-   st.header ("Consumer load profiles")
    consumer_category = st.selectbox("Choose a consumer category", options=consumer_list)
 
    def update_plot1(consumer_category):
@@ -646,7 +646,7 @@ def app(site):
            fps = pricing_signal[nn]['commercial']
         
         
-       load_cs = base_base[consumer_category]
+       load_cs = base[consumer_category]
        optimal_load=optimal_load_curve1(fps,load_cs)
        base_load =load_cs.iloc[:, 25]
     
@@ -660,7 +660,7 @@ def app(site):
            #width=1100,
            margin=dict(l=3, r=2, b=0, t=100),
            boxgroupgap=0.00,
-           title_text=f'Consumer load curves: {n}',
+           title_text=f'Consumer load curves: Iteration {n}',
         )
 
        # Add axis titles for each subplot
