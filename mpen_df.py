@@ -4,7 +4,7 @@
 # Version 1.0
 # Dec 11, 2023
 
-#import mpen_df_data
+import mpen_df_model
 import mpen_df_analysis
 #import mpen_df_viz
 import streamlit as st
@@ -14,7 +14,7 @@ sites = {}
 sites['Demo (Test data)'] = {'prefix':'demo'}
 
 PAGES = {
-    #"Data": mpen_df_data,
+    "About": mpen_df_model,
     "Analysis": mpen_df_analysis,
     #"Visualization": mpen_df_viz,
 }
@@ -44,7 +44,7 @@ with lounge.container():
       st.image ('res/demand_flex.jpg')
 
       st.sidebar.title('Selection')
-      selection = st.sidebar.radio("Select Site", sites.keys())
+      selection = st.sidebar.radio("Select variant", sites.keys())
    
       explored = st.sidebar.button("Explore!")
    
